@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+
+# Airflow
+logs/
+
+# Environment
+.env
+.venv/
+venv/
+
+# Data files
+data/raw/*.csv
+data/exports/*.csv
+data/exports/*.parquet
+
+# Database files
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
