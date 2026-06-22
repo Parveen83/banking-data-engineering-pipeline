@@ -243,3 +243,8 @@ year=2026/
 * dbt Modeling
 * Snowflake Migration
 * Databricks Lakehouse Architecture
+
+
+## Successful DAG Run
+
+![DAG Success](docs/images/banking_pipeline_dag_v1.png)
