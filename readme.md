@@ -1,4 +1,4 @@
-# Banking Data Engineering Platform - Version 1
+# Banking Data Engineering Platform - Version 2
 
 ## Overview
 
@@ -6,7 +6,7 @@ This project demonstrates a basic data engineering pipeline that loads banking t
 
 Version 1 focuses on the **Table → File** data engineering pattern.
 
-## Architecture
+## v1 Architecture
 
 ```text
 PaySim Dataset (CSV)
@@ -23,6 +23,22 @@ PaySim Dataset (CSV)
  ┌─────────┬──────────┐
  │   CSV   │ Parquet  │
  └─────────┴──────────┘
+```
+
+## v2 Architecture
+```text
+CSV
+CSV
+JSON
+PARQUET
+     ↓
+Airflow
+     ↓
+Validation
+     ↓
+Standardization
+     ↓
+raw.transactions
 ```
 
 ## Objectives
@@ -71,13 +87,20 @@ banking-data-engineering-pipeline/
 │
 ├── airflow/
 │   └── dags/
-│       └── banking_pipeline.py
+│       ├── banking_pipeline.py
+│       └── v2_multi_file_ingestion.py
 │
 ├── sql/
-│   ├── create_schema.sql
+│   ├── create_schemas.sql
 │   └── create_transactions_table.sql
 │
 ├── data/
+│   ├── input/
+│   │   ├── transactions_jan.csv
+│   │   ├── transactions_feb.parquet
+│   │   ├── transactions_mar.json
+│   │   └── transactions_apr.csv
+│   │
 │   ├── raw/
 │   │   └── paysim.csv
 │   │
@@ -152,16 +175,29 @@ data/exports/transactions.parquet
 ## DAG Flow
 
 ```text
+### Version 1
+
 create_schema
       ↓
 create_table
       ↓
 load_csv
       ↓
- ┌───────────────┐
- │               │
- ↓               ↓
-export_csv   export_parquet
+ ┌─────────────┐
+ │             │
+ ↓             ↓
+export_csv export_parquet
+
+
+### Version 2
+
+create_schema
+      ↓
+create_table
+      ↓
+load_transaction_files
+      ↓
+validate_load
 ```
 
 ## How to Run
@@ -209,21 +245,54 @@ data/exports/transactions.parquet
 * Dockerized data engineering workflows
 * Batch processing concepts
 
-## Future Enhancements
+## Successful DAG Runs
+
+### Version 1
+
+![V1 DAG](docs/images/banking_pipeline_dag_v1.png)
 
 ### Version 2
 
-Multiple Files → Single Table
+![V2 DAG](docs/images/banking_pipeline_dag_v2.png)
 
-```text
-transactions_jan.csv
-transactions_feb.csv
-transactions_mar.csv
-          ↓
-       Airflow
-          ↓
- PostgreSQL Table
-```
+## Project Versions
+
+### Version 1
+- Single CSV ingestion
+- PostgreSQL loading
+- CSV export
+- Parquet export
+
+### Version 2
+- Multiple file ingestion
+- Supports CSV, JSON and Parquet
+- Dynamic file discovery
+- Schema validation
+- Data type standardization
+- Loads all files into raw.transactions
+
+Version 2 extends the pipeline to support ingestion from multiple file formats.
+
+Supported formats:
+- CSV
+- JSON
+- Parquet
+
+The pipeline automatically:
+- Discovers input files
+- Validates the schema
+- Standardizes column names
+- Standardizes data types
+- Loads all records into PostgreSQL
+
+## Data Validation
+
+The pipeline validates:
+
+- Required columns
+- Supported file formats
+- Numeric data types
+- Empty input directory
 
 ### Version 3
 
